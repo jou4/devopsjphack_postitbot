@@ -3,6 +3,8 @@ module.exports = function(robot){
   var RestClient = require('node-rest-client').Client;
   var jenkins = new RestClient();
 
+  var exec = require('child_process').exec;
+
   function getImageUrl(id){
     var imageName ="rola_" + id + ".jpg";
     var timestamp = (new Date()).toISOString().replace(/[^0-9]/g, "");
@@ -22,12 +24,42 @@ module.exports = function(robot){
     });
   });
 
-  robot.respond(/サーバーください|knife/i, function(msg){
-    msg.send("おっけ～、ちょっと待っててね♪");
+  robot.respond(/test(.*)/i, function(msg){
+    msg.send("param: " + msg.match[1]);
+    jenkins.get(getJenkinsApi("api/json"), function(data, response){
+      console.log(data);
+      data.jobs.forEach(function(val, index, ar){
+        msg.send(val.name + ":" + val.url);
+      });
+    });
+  });
+
+  robot.respond(/shell(.*)/i, function(msg){
+    msg.send("param: " + msg.match[1]);
+    exec('ls -l ./', function(err, stdout, stderr){
+      /* some process */
+      console.log(stdout);
+      msg.send("done");
+      msg.send(stdout);
+    });
+  });
+
+  robot.respond(/create-vm (.*)/i, function(msg){
+    msg.send("create-vm: start: " + msg.match[1]);
+    exec('ls -l ./', function(err, stdout, stderr){
+      console.log(stdout);
+      msg.send("create-vm: finish: " + msg.match[1]);
+      msg.send(stdout);
+    });
+  });
+
+  robot.respond(/(.*)サーバーください|knife/i, function(msg){
+    var serverName = msg.match[1];
+    msg.send("おっけ～、" + serverName + "サーバー作るからちょっと待っててね♪");
     msg.send(getImageUrl("01"));
-    jenkins.get(getJenkinsApi("job/knife-azure/build"), function(data, response){
+    jenkins.get(getJenkinsApi("job/create-vm/build"), function(data, response){
       setTimeout(function(){
-        jenkins.get(getJenkinsApi("job/knife-azure/api/json"), function(data, response){
+        jenkins.get(getJenkinsApi("job/create-vm/api/json"), function(data, response){
           console.log(data);
           console.log(data.builds);
           var targetBuild = data.builds[0];
@@ -40,7 +72,7 @@ module.exports = function(robot){
                 msg.send("もうちょっとかかるみたい。。。 " + targetBuild.url);
                 setTimeout(iter, 5000);
               }else{
-                msg.send("終わったよ～♪ " + targetBuild.url);
+                msg.send(serverName + "サーバーできたよ～♪ " + targetBuild.url);
                 msg.send(getImageUrl("05"));
               }
             });
@@ -51,8 +83,9 @@ module.exports = function(robot){
     });
   });
 
-  robot.respond(/テストお願い|serverspec/i, function(msg){
-    msg.send("おっけ～、ちょっと待っててね♪");
+  robot.respond(/(.*)サーバーのテストお願い|serverspec/i, function(msg){
+    var serverName = msg.match[1];
+    msg.send("おっけ～、" + serverName + "サーバーのテストするね♪");
     msg.send(getImageUrl("07"));
     jenkins.get(getJenkinsApi("job/serverspec/build"), function(data, response){
       setTimeout(function(){
@@ -69,7 +102,7 @@ module.exports = function(robot){
                 msg.send("もうちょっとかかるみたい。。。 " + targetBuild.url);
                 setTimeout(iter, 5000);
               }else{
-                msg.send("終わったよ～♪ " + targetBuild.url);
+                msg.send(serverName + "サーバーのテスト終わったよ～♪ " + targetBuild.url);
                 msg.send(getImageUrl("06"));
               }
             });
