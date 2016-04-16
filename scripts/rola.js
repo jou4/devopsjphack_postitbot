@@ -22,33 +22,62 @@ module.exports = function(robot){
     });
   });
 
-  robot.respond(/serverspec/i, function(msg){
-    jenkins.get(getJenkinsApi("job/serverspec/build"), function(data, response){
-      msg.send("start");
-      jenkins.get(getJenkinsApi("job/serverspec/api/json"), function(data, response){
-        console.log(data);
-        console.log(data.builds);
-        var targetBuild = data.builds[0];
-        console.log(targetBuild);
-        msg.send("building: " + targetBuild.url);
-        var iter = function(){
-          jenkins.get(targetBuild.url, function(data, response){
-            if(data.building){
-              msg.send("building: " + targetBuild.url);
-              setTimeout(iter, 1000);
-            }else{
-              msg.send("finish : " + targetBuild.url);
-            }
-          });
-        };
-        setTimeout(iter, 1000);
-      });
+  robot.respond(/サーバーください|knife/i, function(msg){
+    msg.send("おっけ～、ちょっと待っててね♪");
+    msg.send(getImageUrl("01"));
+    jenkins.get(getJenkinsApi("job/knife-azure/build"), function(data, response){
+      setTimeout(function(){
+        jenkins.get(getJenkinsApi("job/knife-azure/api/json"), function(data, response){
+          console.log(data);
+          console.log(data.builds);
+          var targetBuild = data.builds[0];
+          console.log(targetBuild);
+          msg.send("もうちょっとかかるみたい。。。 " + targetBuild.url);
+          msg.send(getImageUrl("03"));
+          var iter = function(){
+            jenkins.get(targetBuild.url + "api/json", function(data, response){
+              if(data.building){
+                msg.send("もうちょっとかかるみたい。。。 " + targetBuild.url);
+                setTimeout(iter, 5000);
+              }else{
+                msg.send("終わったよ～♪ " + targetBuild.url);
+                msg.send(getImageUrl("05"));
+              }
+            });
+          };
+          setTimeout(iter, 5000);
+        });
+      }, 10000);
     });
   });
 
-  robot.respond(/サーバーください/i, function(msg){
+  robot.respond(/テストお願い|serverspec/i, function(msg){
     msg.send("おっけ～、ちょっと待っててね♪");
-    msg.send(getImageUrl("02"));
+    msg.send(getImageUrl("07"));
+    jenkins.get(getJenkinsApi("job/serverspec/build"), function(data, response){
+      setTimeout(function(){
+        jenkins.get(getJenkinsApi("job/serverspec/api/json"), function(data, response){
+          console.log(data);
+          console.log(data.builds);
+          var targetBuild = data.builds[0];
+          console.log(targetBuild);
+          msg.send("もうちょっとかかるみたい。。。 " + targetBuild.url);
+          msg.send(getImageUrl("04"));
+          var iter = function(){
+            jenkins.get(targetBuild.url + "api/json", function(data, response){
+              if(data.building){
+                msg.send("もうちょっとかかるみたい。。。 " + targetBuild.url);
+                setTimeout(iter, 5000);
+              }else{
+                msg.send("終わったよ～♪ " + targetBuild.url);
+                msg.send(getImageUrl("06"));
+              }
+            });
+          };
+          setTimeout(iter, 5000);
+        });
+      }, 10000);
+    });
   });
 
 }

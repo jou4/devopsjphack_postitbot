@@ -1,5 +1,5 @@
-HUBOT_SLACK_TOKEN=xoxb-35170980803-HuysJQLXvOsl3OrKB0yXUXi9 \
+HUBOT_SLACK_TOKEN=xoxb-35248847655-nRoCvbUSgaCcEu7bkRNM7Yxw \
 HUBOT_SLACK_TEAM=devopsjphack-postit \
-HUBOT_SLACK_BOTNAME=postitbot2 \
+HUBOT_SLACK_BOTNAME=rola \
 bin/hubot --adapter slack
 
