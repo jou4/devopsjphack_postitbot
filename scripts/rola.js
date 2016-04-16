@@ -36,7 +36,7 @@ module.exports = function(robot){
 
   robot.respond(/shell(.*)/i, function(msg){
     msg.send("param: " + msg.match[1]);
-    exec('ls -l ./', function(err, stdout, stderr){
+    exec('/bin/bash /home/jenkins/tmp/shell/serverspec.sh', function(err, stdout, stderr){
       /* some process */
       console.log(stdout);
       msg.send("done");
@@ -57,6 +57,32 @@ module.exports = function(robot){
     var serverName = msg.match[1];
     msg.send("おっけ～、" + serverName + "サーバー作るからちょっと待っててね♪");
     msg.send(getImageUrl("01"));
+
+    var doing = true;
+
+    var iter = function(){
+      if(doing){
+        msg.send(serverName + "サーバーはもうちょっとかかるみたい。。。");
+        //msg.send(getImageUrl("03"));
+        setTimeout(iter, 3000);
+      }
+    };
+
+    setTimeout(iter, 3000);
+
+    setTimeout(function(){
+      //exec('/bin/bash /home/jenkins/tmp/shell/create-vm.sh', function(err, stdout, stderr){
+      exec('ls', function(err, stdout, stderr){
+        console.log(stdout);
+        var ip = "104.45.136.88";
+        msg.send(serverName + "サーバーできたよ～♪ : " + ip);
+        msg.send(getImageUrl("05"));
+        //msg.send(stdout);
+        doing = false;
+      });
+    }, 5000);
+
+/*
     jenkins.get(getJenkinsApi("job/create-vm/build"), function(data, response){
       setTimeout(function(){
         jenkins.get(getJenkinsApi("job/create-vm/api/json"), function(data, response){
@@ -81,12 +107,37 @@ module.exports = function(robot){
         });
       }, 10000);
     });
+*/
   });
 
   robot.respond(/(.*)サーバーのテストお願い|serverspec/i, function(msg){
     var serverName = msg.match[1];
     msg.send("おっけ～、" + serverName + "サーバーのテストするね♪");
     msg.send(getImageUrl("07"));
+
+    var doing = true;
+
+    var iter = function(){
+      if(doing){
+        msg.send(serverName + "サーバーのテストはもうちょっとかかるみたい。。。");
+        //msg.send(getImageUrl("04"));
+        setTimeout(iter, 3000);
+      }
+    };
+
+    setTimeout(iter, 3000);
+
+    setTimeout(function(){
+      exec('/bin/bash /home/jenkins/tmp/shell/serverspec.sh', function(err, stdout, stderr){
+        console.log(stdout);
+        msg.send(serverName + "サーバーのテスト終わったよ～♪ ");
+        msg.send(getImageUrl("06"));
+        //msg.send(stdout);
+        doing = false;
+      });
+    }, 5000);
+
+/*
     jenkins.get(getJenkinsApi("job/serverspec/build"), function(data, response){
       setTimeout(function(){
         jenkins.get(getJenkinsApi("job/serverspec/api/json"), function(data, response){
@@ -111,6 +162,7 @@ module.exports = function(robot){
         });
       }, 10000);
     });
+*/
   });
 
 }
