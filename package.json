@@ -17,7 +17,8 @@
     "hubot-redis-brain": "0.0.3",
     "hubot-scripts": "~2.16.2",
     "hubot-slack": "~3.4.2",
-    "hubot": "~2.18.0"
+    "hubot": "~2.18.0",
+    "node-rest-client": "1.8.0"
   },
   "engines": {
     "node": "0.10.x"
